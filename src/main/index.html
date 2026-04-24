@@ -63,7 +63,11 @@
   }
   button:active { transform: scale(0.95); }
 </style>
-<script src="views://main/index.js" defer></script>
+<!-- Script src is relative so the same file loads correctly under both:
+     - Electrobun's views:// URL scheme (at build time it resolves to the bundled JS)
+     - Plain file:// (pre-integration standalone tests; compile with
+       `bun build src/main/index.ts --outfile src/main/index.js` first) -->
+<script src="./index.js" defer></script>
 </head>
 <body>
   <div class="card">
