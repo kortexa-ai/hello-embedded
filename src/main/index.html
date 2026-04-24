@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hello, Electrobun</title>
+<style>
+  :root {
+    --bg-start: #1e2a56;
+    --bg-end:   #314580;
+    --accent:   #ffbe2e;
+    --text:     #f5f7fc;
+  }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100vw; height: 100vh;
+    background: linear-gradient(90deg, var(--bg-start), var(--bg-end));
+    color: var(--text);
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .greeting {
+    font-size: clamp(48px, 12vmin, 120px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0;
+  }
+  .dot { color: var(--accent); }
+  .sub {
+    font-size: clamp(20px, 4vmin, 36px);
+    opacity: 0.85;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+  }
+  .count {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 3ch;
+    text-align: right;
+  }
+  button {
+    margin-top: 0.6em;
+    padding: 0.5em 1.2em;
+    font-size: clamp(18px, 3.5vmin, 32px);
+    font-weight: 600;
+    color: var(--bg-start);
+    background: var(--accent);
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: transform 0.08s ease;
+  }
+  button:active { transform: scale(0.95); }
+</style>
+<script src="views://main/index.js" defer></script>
+</head>
+<body>
+  <div class="card">
+    <h1 class="greeting">Hello, Electrobun<span class="dot">.</span></h1>
+    <div class="sub">
+      Frame
+      <span id="frames" class="count">0</span>
+      · Clicks
+      <span id="clicks" class="count">0</span>
+    </div>
+    <button id="press">Press me</button>
+  </div>
+</body>
+</html>
