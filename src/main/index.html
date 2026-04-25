@@ -4,11 +4,15 @@
 <meta charset="utf-8">
 <title>Hello, Electrobun</title>
 <style>
+  /* Bare-DRM kiosk note: the webcam used for off-Pi visual confirmation
+     reads the TTY's black background as washed-out navy on this glossy
+     bar panel. The previous navy gradient was therefore indistinguishable
+     from "nothing rendered." Orange-on-charcoal removes that ambiguity. */
   :root {
-    --bg-start: #1e2a56;
-    --bg-end:   #314580;
-    --accent:   #ffbe2e;
-    --text:     #f5f7fc;
+    --bg-start: #cc3300;
+    --bg-end:   #ff8a00;
+    --accent:   #1a1a1a;
+    --text:     #fff5e6;
   }
   html, body {
     margin: 0; padding: 0;
@@ -50,8 +54,8 @@
   }
   button {
     margin-top: 0.6em;
-    padding: 0.5em 1.2em;
-    font-size: clamp(18px, 3.5vmin, 32px);
+    padding: 0.7em 1.6em;
+    font-size: clamp(28px, 5.5vmin, 48px);
     font-weight: 600;
     color: var(--bg-start);
     background: var(--accent);
@@ -62,6 +66,25 @@
     transition: transform 0.08s ease;
   }
   button:active { transform: scale(0.95); }
+  .nav-test {
+    display: flex;
+    gap: 1em;
+    margin-top: 0.6em;
+    align-items: center;
+  }
+  /* Big touch targets for the 7" bar panel — ~80px tall after padding so
+     fat fingers don't have to aim. */
+  .nav-test a, .nav-test button {
+    font-size: clamp(28px, 5.5vmin, 48px);
+    padding: 0.6em 1.4em;
+    color: var(--text);
+    background: transparent;
+    border: 3px solid var(--text);
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: none;
+    line-height: 1;
+  }
 </style>
 <!-- Script src is relative so the same file loads correctly under both:
      - Electrobun's views:// URL scheme (at build time it resolves to the bundled JS)
@@ -79,6 +102,15 @@
       <span id="clicks" class="count">0</span>
     </div>
     <button id="press">Press me</button>
+    <!-- Navigation smoke test (linux-wpe §16). Tapping these on the bar
+         panel exercises the WPE backend's decide-policy / load-changed /
+         load-failed path so the launcher log surfaces will-navigate /
+         did-navigate / load-failed events from the Bun side. -->
+    <div class="nav-test">
+      <a id="nav-page2" href="views://main/page2.html">tap: page 2</a>
+      <button id="nav-refresh" type="button"
+              onclick="window.location='views://main/index.html?t='+Date.now()">tap: self-reload</button>
+    </div>
   </div>
 </body>
 </html>

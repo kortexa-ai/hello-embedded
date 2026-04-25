@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hello, Electrobun — Page 2</title>
+<style>
+  /* Page 2 deliberately uses a DIFFERENT bg gradient from index.html so
+     the visual flip on tap is unambiguous from the panel (and the webcam).
+     Charcoal-on-orange is inverted from the home page's orange-on-charcoal. */
+  :root {
+    --bg-start: #1a1a1a;
+    --bg-end:   #3a3a3a;
+    --accent:   #ff6b1a;
+    --text:     #fff5e6;
+  }
+  html, body {
+    margin: 0; padding: 0;
+    width: 100vw; height: 100vh;
+    background: linear-gradient(90deg, var(--bg-start), var(--bg-end));
+    color: var(--text);
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 0.5em; }
+  .greeting {
+    font-size: clamp(48px, 12vmin, 120px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0;
+  }
+  .dot { color: var(--accent); }
+  a {
+    margin-top: 0.6em;
+    padding: 0.7em 1.6em;
+    font-size: clamp(28px, 5.5vmin, 48px);
+    font-weight: 600;
+    color: var(--bg-start);
+    background: var(--accent);
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="greeting">Page 2<span class="dot">.</span></h1>
+    <a href="views://main/index.html">tap: back to home</a>
+  </div>
+</body>
+</html>

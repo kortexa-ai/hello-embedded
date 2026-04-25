@@ -16,8 +16,13 @@ export default {
         entrypoint: "src/main/index.ts",
       },
     },
-    // The `linux-embedded` target (bundleWPE) is set via the CLI flag
-    // when building on the Pi. Desktop builds ignore this block entirely.
-    // linux: { embedded: true },
+    copy: {
+      "src/main/index.html": "views/main/index.html",
+      "src/main/page2.html": "views/main/page2.html",
+    },
+    // Bare-DRM kiosk target. When building on Linux this selects
+    // libNativeWrapper_wpe.so (WPE + DRM/KMS + libinput). Ignored when
+    // building on macOS / Windows — those targets never consult build.linux.*.
+    linux: { embedded: true },
   },
 } satisfies ElectrobunConfig;

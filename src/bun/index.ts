@@ -11,7 +11,7 @@
 
 import { BrowserWindow } from "electrobun/bun";
 
-new BrowserWindow({
+const win = new BrowserWindow({
   title: "Hello, Electrobun",
   url: "views://main/index.html",
   // 1200×400 on desktop gives the same landscape-bar proportions as the
@@ -19,4 +19,18 @@ new BrowserWindow({
   // whatever window it gets.
   frame: { x: 100, y: 100, width: 1200, height: 400 },
   titleBarStyle: "default",
+});
+
+// Navigation smoke test (linux-wpe §16). Confirms the WPE backend's
+// decide-policy / load-changed / load-failed signals reach Bun with the
+// same shape the GTK backend produces. Tapping the in-page links
+// triggers will-navigate; the page's load-finished triggers did-navigate.
+// `event.data.detail` is the JSON payload (will-navigate) or the URL
+// string (did-navigate) the C++ handler emitted.
+type NavEvent = { data: { detail: string } };
+win.webview.on("will-navigate", (e: unknown) => {
+  console.log("[bun] will-navigate", (e as NavEvent).data.detail);
+});
+win.webview.on("did-navigate", (e: unknown) => {
+  console.log("[bun] did-navigate", (e as NavEvent).data.detail);
 });
