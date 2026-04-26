@@ -52,7 +52,7 @@
     min-width: 3ch;
     text-align: right;
   }
-  button {
+  .card button {
     margin-top: 0.6em;
     padding: 0.7em 1.6em;
     font-size: clamp(28px, 5.5vmin, 48px);
@@ -65,25 +65,32 @@
     cursor: pointer;
     transition: transform 0.08s ease;
   }
-  button:active { transform: scale(0.95); }
+  .card button:active { transform: scale(0.95); }
   .nav-test {
     display: flex;
     gap: 1em;
     margin-top: 0.6em;
     align-items: center;
   }
-  /* Big touch targets for the 7" bar panel — ~80px tall after padding so
-     fat fingers don't have to aim. */
-  .nav-test a, .nav-test button {
+  /* Big touch targets for the 7" bar panel — both <button> so the box
+     metrics + baseline behavior match without fighting UA defaults. */
+  .nav-test button {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    font: inherit;
     font-size: clamp(28px, 5.5vmin, 48px);
     padding: 0.6em 1.4em;
     color: var(--text);
     background: transparent;
     border: 3px solid var(--text);
     border-radius: 9999px;
-    text-decoration: none;
     box-shadow: none;
     line-height: 1;
+    cursor: pointer;
   }
 </style>
 <!-- Script src is relative so the same file loads correctly under both:
@@ -102,12 +109,10 @@
       <span id="clicks" class="count">0</span>
     </div>
     <button id="press">Press me</button>
-    <!-- Navigation smoke test (linux-wpe §16). Tapping these on the bar
-         panel exercises the WPE backend's decide-policy / load-changed /
-         load-failed path so the launcher log surfaces will-navigate /
-         did-navigate / load-failed events from the Bun side. -->
+    <!-- Navigation smoke test (linux-wpe §16). -->
     <div class="nav-test">
-      <a id="nav-page2" href="views://main/page2.html">tap: page 2</a>
+      <button id="nav-page2" type="button"
+              onclick="window.location='views://main/page2.html'">tap: page 2</button>
       <button id="nav-refresh" type="button"
               onclick="window.location='views://main/index.html?t='+Date.now()">tap: self-reload</button>
     </div>

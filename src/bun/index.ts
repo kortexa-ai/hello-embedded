@@ -18,15 +18,16 @@ const win = new BrowserWindow({
   // Pi kiosk (1920×480). The view's HTML uses 100vw/100vh so it fills
   // whatever window it gets.
   frame: { x: 100, y: 100, width: 1200, height: 400 },
-  titleBarStyle: "default",
+  // 'hidden' makes Electrobun's preload pipeline auto-inject a chrome bar
+  // (§18 in linux-wpe.md). On macOS/GTK 'hidden' also removes the native
+  // titlebar so the in-page bar isn't doubled up; on WPE-on-DRM there's
+  // no native titlebar to suppress.
+  titleBarStyle: "hidden",
 });
 
 // Navigation smoke test (linux-wpe §16). Confirms the WPE backend's
 // decide-policy / load-changed / load-failed signals reach Bun with the
-// same shape the GTK backend produces. Tapping the in-page links
-// triggers will-navigate; the page's load-finished triggers did-navigate.
-// `event.data.detail` is the JSON payload (will-navigate) or the URL
-// string (did-navigate) the C++ handler emitted.
+// same shape the GTK backend produces.
 type NavEvent = { data: { detail: string } };
 win.webview.on("will-navigate", (e: unknown) => {
   console.log("[bun] will-navigate", (e as NavEvent).data.detail);

@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "electrobun dev",
     "start": "electrobun run",
-    "build": "electrobun build",
-    "build:embedded": "electrobun build --target=linux-embedded"
+    "build": "electrobun build"
   },
   "dependencies": {
     "electrobun": "file:../electrobun/package"
