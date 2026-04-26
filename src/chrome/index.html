@@ -59,21 +59,20 @@
   // Utils.quit(). Sending the message directly through internalBridge
   // avoids needing the full RPC stack from this tiny chrome view.
   document.getElementById("close").addEventListener("click", function () {
+    // Bun-side internalRpcHandlers.message.electrobunChromeQuit calls
+    // Utils.quit(). Format matches preload/internalRpc.ts's send():
+    // { type: "message", id: handlerName, payload: data }.
     var bridge = window.__electrobunInternalBridge ||
                  (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.internalBridge);
-    if (!bridge) {
+    if (!bridge || typeof bridge.postMessage !== "function") {
       console.warn("[chrome] no internalBridge available");
       return;
     }
-    var payload = JSON.stringify({
-      type: "request",
-      id: "chrome-quit-" + Date.now(),
-      method: "message",
-      params: { type: "electrobunChromeQuit" }
-    });
-    if (typeof bridge.postMessage === "function") {
-      bridge.postMessage(payload);
-    }
+    bridge.postMessage(JSON.stringify({
+      type: "message",
+      id: "electrobunChromeQuit",
+      payload: {}
+    }));
   });
 </script>
 </body>
