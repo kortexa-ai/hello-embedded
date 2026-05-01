@@ -11,9 +11,13 @@
     "dev:hmr": "concurrently \"bun run hmr\" \"bun run dev\""
   },
   "dependencies": {
+    "@json-render/core": "^0.18.0",
+    "@json-render/react": "^0.18.0",
+    "@json-render/shadcn": "^0.18.0",
     "electrobun": "file:../electrobun/package",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
