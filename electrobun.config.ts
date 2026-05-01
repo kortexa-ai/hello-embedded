@@ -19,7 +19,6 @@ export default {
     copy: {
       "src/main/index.html": "views/main/index.html",
       "src/main/page2.html": "views/main/page2.html",
-      "src/chrome/index.html": "views/chrome/index.html",
     },
     // Bare-DRM kiosk target. When building on Linux this selects
     // libNativeWrapper_wpe.so (WPE + DRM/KMS + libinput). Ignored when
