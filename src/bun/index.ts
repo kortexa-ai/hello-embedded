@@ -93,10 +93,10 @@ async function getMainViewUrl(): Promise<string> {
 const win = new BrowserWindow({
   title: "Hello, Electrobun",
   url: await getMainViewUrl(),
-  // 1200×400 on desktop gives the same landscape-bar proportions as the
-  // Pi kiosk (1920×480). The view's HTML uses 100vw/100vh so it fills
-  // whatever window it gets.
-  frame: { x: 100, y: 100, width: 1200, height: 400 },
+  // Using 1920x436 to provide the same landscape-bar proportions as
+  // our Pi kiosk setup (1920x480 minus chrome height).
+  // The view's HTML uses 100vw/100vh so it fills whatever window it gets.
+  frame: { x: 100, y: 100, width: 1920, height: 436 },
   // On linux-embedded the values map to compositor behavior:
   //   'default'     — Electrobun auto-injects a chrome bar
   //   'hidden'      — fullscreen, no chrome
@@ -114,4 +114,14 @@ win.webview.on("will-navigate", (e: unknown) => {
 });
 win.webview.on("did-navigate", (e: unknown) => {
   console.log("[bun] did-navigate", (e as NavEvent).data.detail);
+});
+
+// Renderer → Bun bridge. The webview calls window.__electrobunSendToHost(msg)
+// (set up by Electrobun's preload) and Bun receives it as a "host-message"
+// event. Native.ts already JSON.parses the detail for host-message before
+// dispatching, so detail is the original object — do NOT JSON.parse again.
+// Renderers can't open BrowserWindows directly, so they ask Bun to do it.
+win.webview.on("host-message", (e: unknown) => {
+  const msg = (e as { data: { detail: { action?: string } } }).data.detail;
+  if (msg?.action === "show-about") showAbout();
 });
