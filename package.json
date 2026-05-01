@@ -4,14 +4,26 @@
   "private": true,
   "description": "Minimal portable Electrobun app. Same source, every target — desktop or bare-DRM kiosk on a Raspberry Pi.",
   "scripts": {
-    "dev": "electrobun dev",
+    "dev": "vite build && electrobun dev",
     "start": "electrobun run",
-    "build": "electrobun build"
+    "build": "vite build && electrobun build",
+    "hmr": "vite --port 5174",
+    "dev:hmr": "concurrently \"bun run hmr\" \"bun run dev\""
   },
   "dependencies": {
-    "electrobun": "file:../electrobun/package"
+    "electrobun": "file:../electrobun/package",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@tailwindcss/postcss": "^4.2.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.5.13",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.10"
   }
 }
