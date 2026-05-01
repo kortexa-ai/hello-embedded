@@ -1,17 +1,25 @@
 #!/bin/bash
-# hello-embedded — build script
+# hello-embedded — build script (macOS + Linux)
 # Usage: ./build.sh [dev|canary|prod]
 #   dev     — unsigned dev build (default)
-#   canary  — ad-hoc signed canary build
-#   prod    — ad-hoc signed production build
+#   canary  — ad-hoc signed canary build (macOS) / unsigned (Linux)
+#   prod    — ad-hoc signed production build (macOS) / unsigned (Linux)
 #
-# Ad-hoc signing (codesign --sign -) gives the app a stable code identity on
-# this machine so macOS doesn't re-prompt for permissions on each launch.
-# Other Macs will still flag the bundle as unidentified — for distribution we
-# need Apple Developer ID + notarization, not handled here.
+# macOS: ad-hoc signing (codesign --sign -) gives the app a stable code
+# identity on this machine so macOS doesn't re-prompt for permissions on
+# each launch. Other Macs will still flag the bundle as unidentified — for
+# distribution we need Apple Developer ID + notarization, not handled here.
+#
+# Linux: produces a portable bundle at build/<channel>-linux-<arch>/ plus an
+# installer artifact at artifacts/. Code signing is a no-op on Linux. To
+# install on a Pi: extract the artifact, run ./installer (kiosk mode) or
+# ./installer --no-kiosk (TTY-launched dev mode).
 
 set -e
 cd "$(dirname "$0")"
+
+# Detect host OS so we can branch on macOS-only steps (codesign).
+HOST_OS="$(uname -s)"
 
 # Colors
 RED='\033[0;31m'
@@ -61,9 +69,11 @@ else
     npx electrobun build --env="$CHANNEL"
 fi
 
-# Ad-hoc sign canary/prod. The .app path is build/<channel>-<platform>/...app
-# (electrobun adds the channel suffix to the bundle name for non-stable).
-if [ "$ENV" != "dev" ]; then
+# Ad-hoc sign canary/prod on macOS only. The .app path is
+# build/<channel>-<platform>/...app (electrobun adds the channel suffix to
+# the bundle name for non-stable). Linux builds produce a flat bundle dir
+# at build/<channel>-linux-<arch>/ — nothing to codesign.
+if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
     APP=$(find build -maxdepth 2 -name "*.app" -path "*${CHANNEL}*" 2>/dev/null | head -1)
     if [ -z "$APP" ]; then
         echo -e "${RED}✗${RESET} Could not find .app bundle to sign"
@@ -76,4 +86,15 @@ fi
 
 echo ""
 echo -e "${GREEN}✓ Build complete:${RESET} ${BOLD}$ENV${RESET}"
-ls -lhd build/*"$CHANNEL"*/*.app 2>/dev/null || true
+case "$HOST_OS" in
+    Darwin)
+        ls -lhd build/*"$CHANNEL"*/*.app 2>/dev/null || true
+        ;;
+    Linux)
+        # Show the bundle dir + the installer artifact (canary/prod only).
+        ls -lhd build/*"$CHANNEL"*-linux-*/ 2>/dev/null || true
+        if [ "$ENV" != "dev" ]; then
+            ls -lh artifacts/*"$CHANNEL"*-linux-*-Setup.tar.gz 2>/dev/null || true
+        fi
+        ;;
+esac
