@@ -8,22 +8,39 @@ import { registry } from "./json-render";
 // dist/catalog.d.ts) — Button uses `label` not `children`, Text/Heading/
 // Badge use `text`, Alert uses `message` + `type`, Switch/Checkbox/Input/
 // Textarea require `name`, Slider takes `value` not `defaultValue`, etc.
+// Laid out as 3 horizontal columns to fit the 1920×480 panel (≈436px usable
+// after the 44px chrome) without scrolling.
 const sampleNested = {
-  component: "Stack",
-  props: { direction: "vertical", gap: "md" },
+  component: "Card",
+  props: { title: "json-render demo" },
   children: [
     {
-      component: "Card",
-      props: { title: "json-render demo", description: "Rendered from JSON via @json-render/shadcn" },
+      component: "Stack",
+      props: { direction: "horizontal", gap: "md" },
       children: [
         {
           component: "Stack",
-          props: { direction: "vertical", gap: "md" },
+          props: { direction: "vertical", gap: "sm" },
           children: [
-            { component: "Heading", props: { text: "Controls", level: "h3" } },
-            { component: "Text", props: { text: "Try the controls below.", variant: "muted" } },
             { component: "Input", props: { name: "foo", label: "Input", placeholder: "Type something…" } },
-            { component: "Textarea", props: { name: "bar", label: "Textarea", placeholder: "More words…", rows: 3 } },
+            { component: "Textarea", props: { name: "bar", label: "Textarea", placeholder: "More words…", rows: 2 } },
+            { component: "Badge", props: { text: "Badge", variant: "default" } },
+          ],
+        },
+        {
+          component: "Stack",
+          props: { direction: "vertical", gap: "sm" },
+          children: [
+            { component: "Switch", props: { name: "tog1", label: "Switch" } },
+            { component: "Checkbox", props: { name: "ck1", label: "Checkbox" } },
+            { component: "Slider", props: { label: "Slider", min: 0, max: 100, value: 40 } },
+            { component: "Progress", props: { value: 60, max: 100, label: "Loading" } },
+          ],
+        },
+        {
+          component: "Stack",
+          props: { direction: "vertical", gap: "sm" },
+          children: [
             {
               component: "Stack",
               props: { direction: "horizontal", gap: "sm" },
@@ -33,11 +50,6 @@ const sampleNested = {
                 { component: "Button", props: { label: "Danger", variant: "danger" } },
               ],
             },
-            { component: "Switch", props: { name: "tog1", label: "Switch" } },
-            { component: "Checkbox", props: { name: "ck1", label: "Checkbox" } },
-            { component: "Slider", props: { label: "Slider", min: 0, max: 100, value: 40 } },
-            { component: "Progress", props: { value: 60, max: 100, label: "Loading" } },
-            { component: "Badge", props: { text: "Badge", variant: "default" } },
             { component: "Separator", props: { orientation: "horizontal" } },
             { component: "Alert", props: { title: "Alert", message: "Informational message", type: "info" } },
           ],
@@ -74,19 +86,21 @@ export function Page2View() {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-background text-foreground">
-      <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+    <div className="h-screen w-screen overflow-hidden bg-background text-foreground">
+      <div className="flex h-full flex-col gap-2 p-3">
         <a
           href="./index.html"
-          className="self-start rounded-md border border-[#fff5e6]/40 px-4 py-1.5 text-sm no-underline hover:bg-[#fff5e6]/10"
+          className="self-start rounded-md border border-[#fff5e6]/40 px-10 py-4 text-lg no-underline hover:bg-[#fff5e6]/10"
         >
           ← back to home
         </a>
-        <ErrorBoundary onError={(e) => setRenderError(String(e))}>
-          <JSONUIProvider registry={registry}>
-            <Renderer spec={spec} registry={registry} />
-          </JSONUIProvider>
-        </ErrorBoundary>
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <ErrorBoundary onError={(e) => setRenderError(String(e))}>
+            <JSONUIProvider registry={registry}>
+              <Renderer spec={spec} registry={registry} />
+            </JSONUIProvider>
+          </ErrorBoundary>
+        </div>
       </div>
     </div>
   );
