@@ -64,6 +64,14 @@ function showAbout() {
     url: "views://mainview/about.html",
     frame: { x: 200, y: 200, width: 320, height: 320 },
     titleBarStyle: "default",
+    // Smoke-test for the WPE backend's process-isolation API: this window's
+    // WebProcess is kept separate from the main app's. Trusted same-origin
+    // views (the main window + its chrome bar) share a single WebProcess via
+    // the related-view link; "untrusted" forces a fresh WPEWebProcess so a
+    // compromised origin couldn't read the main app's memory. The About page
+    // is harmless app content, but flagging it untrusted exercises the full
+    // process-spawn + chrome-close-button path end-to-end.
+    trust: "untrusted",
   });
 }
 app.on("close", (data: unknown) => {
