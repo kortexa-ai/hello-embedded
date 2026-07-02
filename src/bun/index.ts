@@ -9,7 +9,7 @@
 // No per-target code in this file. The platform backend is chosen by the
 // Electrobun CLI at build time via the target triple.
 
-import { ApplicationMenu, BrowserWindow, app } from "electrobun/bun";
+import { ApplicationMenu, BrowserView, BrowserWindow, app } from "electrobun/bun";
 
 // Application menu: minimum macOS desktop expectations — App / Edit / Window.
 // First top-level item with no label is the AppKit "app menu" (named after
@@ -98,9 +98,35 @@ async function getMainViewUrl(): Promise<string> {
   }
 }
 
+// Perf probe mode: ELECTROBUN_START_PAGE=perf boots straight into
+// views://mainview/perf.html (rAF frame pacing + RPC round-trip probe —
+// see src/mainview/perf.ts). Used for headless/kiosk perf runs where
+// nobody can click a link.
+const startPage = process.env["ELECTROBUN_START_PAGE"];
+const perfMode = startPage === "perf";
+
+// RPC for the perf probe: answers its pings and logs its once-a-second
+// stats to the bun process log so headless runs can just grep stdout.
+const rpc = BrowserView.defineRPC<any>({
+  maxRequestTime: 5000,
+  handlers: {
+    requests: {
+      ping: ({ n }: { n: number }) => ({ pong: n }),
+    },
+    messages: {
+      "perf-stats": (s: any) => {
+        console.log(
+          `[perf] fps=${s.fps} rpcRoundTripMs=${s.rpcRoundTripMs} ticksSeen=${s.ticksSeen}`,
+        );
+      },
+    },
+  },
+});
+
 const win = new BrowserWindow({
   title: "Hello, Electrobun",
-  url: await getMainViewUrl(),
+  url: startPage ? `views://mainview/${startPage}.html` : await getMainViewUrl(),
+  rpc,
   // Using 1920x436 to provide the same landscape-bar proportions as
   // our Pi kiosk setup (1920x480 minus chrome height).
   // The view's HTML uses 100vw/100vh so it fills whatever window it gets.
@@ -123,6 +149,16 @@ win.webview.on("will-navigate", (e: unknown) => {
 win.webview.on("did-navigate", (e: unknown) => {
   console.log("[bun] did-navigate", (e as NavEvent).data.detail);
 });
+
+// Perf probe: push a tick once a second so the page can verify the
+// bun→webview socket path stays live (perf.ts counts them as ticksSeen).
+// Gated on perf mode — other pages never register a listener and the
+// pushes would just queue up in the preload's pending-message buffer.
+if (perfMode) {
+  setInterval(() => {
+    (win.webview.rpc as any)?.send?.tick({ t: Date.now() });
+  }, 1000);
+}
 
 // Renderer → Bun bridge. The webview calls window.__electrobunSendToHost(msg)
 // (set up by Electrobun's preload) and Bun receives it as a "host-message"

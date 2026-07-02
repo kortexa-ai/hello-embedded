@@ -20,6 +20,7 @@ export default defineConfig({
         main: resolve(__dirname, "src/mainview/index.html"),
         page2: resolve(__dirname, "src/mainview/page2.html"),
         about: resolve(__dirname, "src/mainview/about.html"),
+        perf: resolve(__dirname, "src/mainview/perf.html"),
       },
     },
   },

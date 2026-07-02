@@ -3,7 +3,12 @@ import type { ElectrobunConfig } from "electrobun";
 export default {
   app: {
     name: "Hello Electrobun",
-    identifier: "sh.kortexa.hello-embedded",
+    // Reverse-DNS of kortexa.ai. (Was "sh.kortexa.*", cargo-culted from
+    // upstream's sh.blackboard.* — blackboard.sh really is their domain.)
+    // NOTE: the identifier keys cache/data paths (~/.cache/<identifier>) and
+    // the kiosk systemd unit name; existing installs will re-provision under
+    // the new name and leave the old dirs behind.
+    identifier: "ai.kortexa.hello-embedded",
     version: "0.1.0",
   },
   build: {
@@ -17,6 +22,7 @@ export default {
       "dist/mainview/index.html": "views/mainview/index.html",
       "dist/mainview/page2.html": "views/mainview/page2.html",
       "dist/mainview/about.html": "views/mainview/about.html",
+      "dist/mainview/perf.html": "views/mainview/perf.html",
       "dist/mainview/assets": "views/mainview/assets",
     },
     watchIgnore: ["dist/**"],
