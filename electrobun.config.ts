@@ -13,7 +13,7 @@ export default {
   },
   build: {
     useAsar: true,
-    bun: {
+    cottontail: {
       entrypoint: "src/bun/index.ts",
     },
     // Vite owns the renderer bundle now; pull its dist/ into views/mainview/.
