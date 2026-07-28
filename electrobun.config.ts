@@ -15,6 +15,10 @@ export default {
     useAsar: true,
     cottontail: {
       entrypoint: "src/bun/index.ts",
+      // electrobun/bun currently re-exports the full Three.js and Babylon.js
+      // stacks. Minifying keeps their unavoidable bundle cost from becoming
+      // unnecessary parse time on slower embedded CPUs.
+      minify: true,
     },
     // Vite owns the renderer bundle now; pull its dist/ into views/mainview/.
     // `vite build` runs ahead of `electrobun build` via the npm scripts.
