@@ -27,6 +27,7 @@ export default {
       "dist/mainview/page2.html": "views/mainview/page2.html",
       "dist/mainview/about.html": "views/mainview/about.html",
       "dist/mainview/perf.html": "views/mainview/perf.html",
+      "dist/mainview/three.html": "views/mainview/three.html",
       "dist/mainview/assets": "views/mainview/assets",
     },
     watchIgnore: ["dist/**"],

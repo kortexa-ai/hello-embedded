@@ -38,6 +38,15 @@ export function App() {
           <button
             type="button"
             onClick={() => {
+              window.location.href = "./three.html";
+            }}
+            className="rounded-md border border-[#fff5e6]/40 px-[4rem] py-[1.6rem] text-[1.8rem] hover:bg-[#fff5e6]/10"
+          >
+            three.js
+          </button>
+          <button
+            type="button"
+            onClick={() => {
               (
                 window as unknown as {
                   __electrobunSendToHost?: (msg: unknown) => void;
