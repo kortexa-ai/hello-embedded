@@ -147,19 +147,28 @@ if (chromeTest && win.chromeWebviewId) {
   setTimeout(() => {
     chrome?.executeJavascript(`
       (() => {
+        const mode = ${JSON.stringify(chromeTest)};
         const title = document.getElementById("title");
         const rect = title?.getBoundingClientRect();
         const style = title ? getComputedStyle(title) : null;
         console.log("[chrome-test] " + JSON.stringify({
-          mode: ${JSON.stringify(chromeTest)},
+          mode,
           text: title?.textContent,
           rect: rect && [rect.x, rect.y, rect.width, rect.height],
           color: style?.color,
           font: style?.font,
         }));
-        if (${JSON.stringify(chromeTest)} === "paint" && title) {
+        if (mode === "paint" && title) {
           title.style.background = "#7f006e";
         }
+        const click = (id) => document.getElementById(id)?.click();
+        if (mode === "maximize" || mode === "cycle") click("maximize");
+        if (mode === "reveal" || mode === "cycle") {
+          if (mode === "reveal") click("maximize");
+          setTimeout(() => click("handle"), 1000);
+        }
+        if (mode === "cycle") setTimeout(() => click("maximize"), 2000);
+        if (mode === "close") click("close");
       })();
     `);
   }, 1000);
