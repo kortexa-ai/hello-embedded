@@ -139,6 +139,32 @@ const win = new BrowserWindow({
   titleBarStyle: "default",
 });
 
+// Optional proving-ground hook for exercising framework-owned WPE chrome
+// without a physical tap. Kept inert in normal builds.
+const chromeTest = process.env["ELECTROBUN_CHROME_TEST"];
+if (chromeTest && win.chromeWebviewId) {
+  const chrome = BrowserView.getById(win.chromeWebviewId);
+  setTimeout(() => {
+    chrome?.executeJavascript(`
+      (() => {
+        const title = document.getElementById("title");
+        const rect = title?.getBoundingClientRect();
+        const style = title ? getComputedStyle(title) : null;
+        console.log("[chrome-test] " + JSON.stringify({
+          mode: ${JSON.stringify(chromeTest)},
+          text: title?.textContent,
+          rect: rect && [rect.x, rect.y, rect.width, rect.height],
+          color: style?.color,
+          font: style?.font,
+        }));
+        if (${JSON.stringify(chromeTest)} === "paint" && title) {
+          title.style.background = "#7f006e";
+        }
+      })();
+    `);
+  }, 1000);
+}
+
 // Navigation smoke test (linux-wpe §16). Confirms the WPE backend's
 // decide-policy / load-changed / load-failed signals reach Bun with the
 // same shape the GTK backend produces.
