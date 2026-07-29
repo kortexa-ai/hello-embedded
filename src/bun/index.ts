@@ -153,6 +153,7 @@ if (chromeTest && win.chromeWebviewId) {
     ptr: Boolean(chrome?.ptr),
   });
   setTimeout(() => {
+    console.log("[chrome-test-execute]");
     chrome?.executeJavascript(`
       (() => {
         const mode = ${JSON.stringify(chromeTest)};
@@ -179,6 +180,7 @@ if (chromeTest && win.chromeWebviewId) {
         if (mode === "close") click("close");
       })();
     `);
+    console.log("[chrome-test-executed]");
   }, 1000);
 }
 
