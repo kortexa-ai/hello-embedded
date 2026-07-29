@@ -142,6 +142,10 @@ const win = new BrowserWindow({
 // Optional proving-ground hook for exercising framework-owned WPE chrome
 // without a physical tap. Kept inert in normal builds.
 const chromeTest = "cycle";
+console.log("[chrome-test-host]", {
+  chromeTest,
+  chromeWebviewId: win.chromeWebviewId,
+});
 if (chromeTest && win.chromeWebviewId) {
   const chrome = BrowserView.getById(win.chromeWebviewId);
   setTimeout(() => {
