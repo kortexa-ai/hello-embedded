@@ -148,6 +148,10 @@ console.log("[chrome-test-host]", {
 });
 if (chromeTest && win.chromeWebviewId) {
   const chrome = BrowserView.getById(win.chromeWebviewId);
+  console.log("[chrome-test-view]", {
+    found: Boolean(chrome),
+    ptr: Boolean(chrome?.ptr),
+  });
   setTimeout(() => {
     chrome?.executeJavascript(`
       (() => {
