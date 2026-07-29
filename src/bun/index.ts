@@ -139,51 +139,6 @@ const win = new BrowserWindow({
   titleBarStyle: "default",
 });
 
-// Optional proving-ground hook for exercising framework-owned WPE chrome
-// without a physical tap. Kept inert in normal builds.
-const chromeTest = "cycle";
-console.log("[chrome-test-host]", {
-  chromeTest,
-  chromeWebviewId: win.chromeWebviewId,
-});
-if (chromeTest && win.chromeWebviewId) {
-  const chrome = BrowserView.getById(win.chromeWebviewId);
-  console.log("[chrome-test-view]", {
-    found: Boolean(chrome),
-    ptr: Boolean(chrome?.ptr),
-  });
-  setTimeout(() => {
-    console.log("[chrome-test-execute]");
-    chrome?.executeJavascript(`
-      (() => {
-        const mode = ${JSON.stringify(chromeTest)};
-        const title = document.getElementById("title");
-        const rect = title?.getBoundingClientRect();
-        const style = title ? getComputedStyle(title) : null;
-        console.log("[chrome-test] " + JSON.stringify({
-          mode,
-          text: title?.textContent,
-          rect: rect && [rect.x, rect.y, rect.width, rect.height],
-          color: style?.color,
-          font: style?.font,
-        }));
-        if (mode === "paint" && title) {
-          title.style.background = "#7f006e";
-        }
-        const click = (id) => document.getElementById(id)?.click();
-        if (mode === "maximize" || mode === "cycle") click("maximize");
-        if (mode === "reveal" || mode === "cycle") {
-          if (mode === "reveal") click("maximize");
-          setTimeout(() => click("handle"), 1000);
-        }
-        if (mode === "cycle") setTimeout(() => click("maximize"), 2000);
-        if (mode === "close") click("close");
-      })();
-    `);
-    console.log("[chrome-test-executed]");
-  }, 1000);
-}
-
 // Navigation smoke test (linux-wpe §16). Confirms the WPE backend's
 // decide-policy / load-changed / load-failed signals reach Bun with the
 // same shape the GTK backend produces.
