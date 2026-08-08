@@ -26,7 +26,7 @@ build_and_run() {
     local CHANNEL
     case "$ENV" in
         canary) CHANNEL="canary" ;;
-        prod)   CHANNEL="stable" ;;
+        prod)   CHANNEL="production" ;;
     esac
 
     echo "→ building and launching $ENV bundle"
@@ -67,8 +67,8 @@ build_and_run() {
             "$STAGE/installer" --no-kiosk
 
             # Identifier comes straight from electrobun.config.ts — bun reads
-            # the TS file natively. Channel is the electrobun channel name
-            # ("canary" or "stable"), not our env label. Path layout matches
+            # the TS file natively. Channel is the Electrobun environment name
+            # ("canary" or "production"), not our env label. Path layout matches
             # the kiosk install (Phase A): ~/.local/share/<id>/<channel>/current/bin/launcher.
             local IDENT
             IDENT=$(bun -e "console.log((await import('./electrobun.config.ts')).default.app.identifier)" 2>/dev/null)

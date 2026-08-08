@@ -2,33 +2,34 @@
   "name": "hello-embedded",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Minimal portable Electrobun app. Same source, every target — desktop or bare-DRM kiosk on a Raspberry Pi.",
   "scripts": {
-    "dev": "vite build && electrobun dev",
-    "start": "electrobun run",
-    "build": "vite build && electrobun build",
+    "dev": "vite build && hutch electrobun dev --watch",
+    "start": "hutch electrobun run --env=dev",
+    "build": "vite build && hutch electrobun build --env=production",
     "hmr": "vite --port 5174",
     "dev:hmr": "concurrently \"bun run hmr\" \"bun run dev\""
   },
   "dependencies": {
-    "@json-render/core": "^0.18.0",
-    "@json-render/react": "^0.18.0",
-    "@json-render/shadcn": "^0.18.0",
+    "@json-render/core": "^0.19.0",
+    "@json-render/react": "^0.19.0",
+    "@json-render/shadcn": "^0.19.0",
     "electrobun": "file:../electrobun/package",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "three": "^0.165.0",
-    "zod": "^4.4.1"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.185.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.4",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "concurrently": "^9.2.1",
-    "postcss": "^8.5.13",
-    "tailwindcss": "^4.2.4",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.10"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "concurrently": "^10.0.4",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
   }
 }

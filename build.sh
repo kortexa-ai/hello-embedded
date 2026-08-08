@@ -53,25 +53,19 @@ fi
 echo -e "${BLUE}→${RESET} Building frontend..."
 npx vite build
 
-# Map our env labels to electrobun's channel names. Electrobun calls the
-# release channel 'stable'; we expose it as 'prod' to match the conventional
-# triplet dev/canary/prod.
+# Map our env labels to Hutch's Electrobun environments.
 case "$ENV" in
     canary) CHANNEL="canary" ;;
-    prod)   CHANNEL="stable" ;;
+    prod)   CHANNEL="production" ;;
     *)      CHANNEL="dev" ;;
 esac
 
 echo -e "${BLUE}→${RESET} Building app bundle..."
-if [ "$CHANNEL" = "dev" ]; then
-    npx electrobun build
-else
-    npx electrobun build --env="$CHANNEL"
-fi
+hutch electrobun build --env="$CHANNEL"
 
 # Ad-hoc sign canary/prod on macOS only. The .app path is
-# build/<channel>-<platform>/...app (electrobun adds the channel suffix to
-# the bundle name for non-stable). Linux builds produce a flat bundle dir
+# build/<channel>-<platform>/...app (Electrobun adds the environment suffix to
+# non-production bundle names). Linux builds produce a flat bundle dir
 # at build/<channel>-linux-<arch>/ — nothing to codesign.
 if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
     APP=$(find build -maxdepth 2 -name "*.app" -path "*${CHANNEL}*" 2>/dev/null | head -1)

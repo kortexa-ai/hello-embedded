@@ -17,11 +17,11 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, "src/mainview/index.html"),
-        page2: resolve(__dirname, "src/mainview/page2.html"),
-        about: resolve(__dirname, "src/mainview/about.html"),
-        perf: resolve(__dirname, "src/mainview/perf.html"),
-        three: resolve(__dirname, "src/mainview/three.html"),
+        main: resolve(import.meta.dirname, "src/mainview/index.html"),
+        page2: resolve(import.meta.dirname, "src/mainview/page2.html"),
+        about: resolve(import.meta.dirname, "src/mainview/about.html"),
+        perf: resolve(import.meta.dirname, "src/mainview/perf.html"),
+        three: resolve(import.meta.dirname, "src/mainview/three.html"),
       },
     },
   },

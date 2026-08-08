@@ -12,6 +12,7 @@ import { shadcnComponents } from "@json-render/shadcn";
 
 export const catalog = defineCatalog(schema, {
   components: { ...shadcnComponentDefinitions },
+  actions: {},
 });
 
 export const { registry } = defineRegistry(catalog, {
