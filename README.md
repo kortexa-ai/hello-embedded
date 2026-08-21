@@ -1,8 +1,12 @@
 # hello-embedded
 
 Reference Electrobun app, written **once** to run as a real macOS desktop
-app *and* as a bare-DRM kiosk on a Raspberry Pi — same source, no
-per-target code in the app itself.
+app and, after the Kortexa WPE branch is forward-ported to Electrobun 2, as a
+bare-DRM kiosk on a Raspberry Pi.
+
+The current `main` branch builds the Electrobun 2 macOS desktop app. The
+Raspberry Pi workflow below is retained for the pending WPE branch migration;
+upstream Electrobun 2 does not provide the `linux-embedded` target.
 
 The desktop side uses Vite + React 19 + Tailwind v4 with HMR; the
 kiosk side runs the same React bundle on WPE WebKit directly on the
@@ -46,7 +50,7 @@ about — exercising:
 ```
 hello-embedded/
 ├── package.json
-├── electrobun.config.ts        — channels, embedded flag, copy mappings
+├── electrobun.config.ts        — channels, signing, and copy mappings
 ├── vite.config.ts              — vite for the view bundle (mainview/)
 ├── postcss.config.js           — tailwind v4
 ├── tsconfig.json
@@ -73,18 +77,20 @@ hello-embedded/
 
 ```bash
 ./run.sh --dev          # vite HMR + electrobun watch (hot reload, edit + see)
-./run.sh --canary       # ad-hoc signed canary build, opens via `open <APP>.app`
-./run.sh --prod         # ad-hoc signed prod build
+./run.sh --canary       # Developer ID-signed and notarized canary build
+./run.sh --prod         # Developer ID-signed and notarized stable build
 ./run.sh --clean        # rm -rf dist build node_modules/.vite
 ```
 
-Ad-hoc signing (`codesign --sign -`) gives the app a stable code identity
-on this machine so macOS doesn't re-prompt for permissions on each
-launch. Other Macs will still flag the bundle as unidentified — for
-distribution we'd need Apple Developer ID + notarization, not handled
-here.
+Release builds use the installed Developer ID Application identity and submit
+the DMG with the `notarytool` Keychain profile. Set
+`ELECTROBUN_DEVELOPER_ID` to the full identity before running a canary or
+stable build. Dev builds remain unsigned.
 
 ### Raspberry Pi (linux-embedded)
+
+This workflow is temporarily unavailable on `main` until
+`kortexa/linux-wpe` is forward-ported to Electrobun 2.
 
 ```bash
 ./run.sh --canary       # build + extract installer + ./installer --no-kiosk + run

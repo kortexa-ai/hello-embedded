@@ -9,7 +9,7 @@
 // No per-target code in this file. The platform backend is chosen by the
 // Electrobun CLI at build time via the target triple.
 
-import { ApplicationMenu, BrowserView, BrowserWindow, app } from "electrobun/bun";
+import { ApplicationMenu, BrowserView, BrowserWindow, app } from "electrobun/main";
 
 // Application menu: minimum macOS desktop expectations — App / Edit / Window.
 // First top-level item with no label is the AppKit "app menu" (named after
@@ -64,14 +64,10 @@ function showAbout() {
     url: "views://mainview/about.html",
     frame: { x: 200, y: 200, width: 320, height: 320 },
     titleBarStyle: "default",
-    // Smoke-test for the WPE backend's process-isolation API: this window's
-    // WebProcess is kept separate from the main app's. Trusted same-origin
-    // views (the main window + its chrome bar) share a single WebProcess via
-    // the related-view link; "untrusted" forces a fresh WPEWebProcess so a
-    // compromised origin couldn't read the main app's memory. The About page
-    // is harmless app content, but flagging it untrusted exercises the full
-    // process-spawn + chrome-close-button path end-to-end.
-    trust: "untrusted",
+    // Keep the secondary view isolated from privileged RPC. In Electrobun 2,
+    // sandbox replaces the v1 WPE-specific trust option while preserving the
+    // event-only bridge intended for untrusted content.
+    sandbox: true,
   });
 }
 app.on("close", (data: unknown) => {
@@ -165,7 +161,7 @@ if (perfMode) {
 // event. Native.ts already JSON.parses the detail for host-message before
 // dispatching, so detail is the original object — do NOT JSON.parse again.
 // Renderers can't open BrowserWindows directly, so they ask Bun to do it.
-win.webview.on("host-message", (e: unknown) => {
+(win.webview as any).on("host-message", (e: unknown) => {
   const msg = (e as { data: { detail: { action?: string } } }).data.detail;
   if (msg?.action === "show-about") showAbout();
 });

@@ -1,15 +1,17 @@
 {
+  "extends": "./.hutch/devkit/tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["bun"],
+    "types": ["bun", "vite/client"],
     "jsx": "react-jsx"
   },
   "include": ["src/**/*", "electrobun.config.ts"]

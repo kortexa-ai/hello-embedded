@@ -12,7 +12,7 @@ export default {
     version: "0.1.0",
   },
   build: {
-    useAsar: true,
+    mainProcess: "cottontail",
     cottontail: {
       entrypoint: "src/bun/index.ts",
       // electrobun/bun currently re-exports the full Three.js and Babylon.js
@@ -33,10 +33,15 @@ export default {
     watchIgnore: ["dist/**"],
     mac: {
       icons: "icon.iconset",
+      bundleCEF: false,
+      codesign: true,
+      createDmg: true,
+      // The local notary credentials are stored as a notarytool Keychain
+      // profile, which Hutch does not consume. build.sh submits and staples
+      // the signed DMG after Hutch packages it.
+      notarize: false,
     },
-    // Bare-DRM kiosk target. When building on Linux this selects
-    // libNativeWrapper_wpe.so (WPE + DRM/KMS + libinput). Ignored when
-    // building on macOS / Windows — those targets never consult build.linux.*.
-    linux: { embedded: true },
+    linux: { bundleCEF: false },
+    win: { bundleCEF: false },
   },
 } satisfies ElectrobunConfig;

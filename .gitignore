@@ -3,4 +3,5 @@ build/
 dist/
 artifacts/
 .cottontail-tmp/
+.hutch/
 .DS_Store

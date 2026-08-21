@@ -15,6 +15,10 @@ export default defineConfig({
   build: {
     outDir: "../../dist/mainview",
     emptyOutDir: true,
+    // three.html is an isolated full Three.js API playground. Its single
+    // 528 kB chunk is intentional; splitting it would add requests without
+    // reducing the code needed by that page.
+    chunkSizeWarningLimit: 550,
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, "src/mainview/index.html"),

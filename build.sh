@@ -2,13 +2,12 @@
 # hello-embedded — build script (macOS + Linux)
 # Usage: ./build.sh [dev|canary|prod]
 #   dev     — unsigned dev build (default)
-#   canary  — ad-hoc signed canary build (macOS) / unsigned (Linux)
-#   prod    — ad-hoc signed production build (macOS) / unsigned (Linux)
+#   canary  — Developer ID-signed canary build (macOS) / unsigned (Linux)
+#   prod    — Developer ID-signed stable build (macOS) / unsigned (Linux)
 #
-# macOS: ad-hoc signing (codesign --sign -) gives the app a stable code
-# identity on this machine so macOS doesn't re-prompt for permissions on
-# each launch. Other Macs will still flag the bundle as unidentified — for
-# distribution we need Apple Developer ID + notarization, not handled here.
+# macOS release builds require ELECTROBUN_DEVELOPER_ID. Hutch signs and
+# packages the app; this script then notarizes and staples the DMG with the
+# machine's `notarytool` Keychain profile.
 #
 # Linux: produces a portable bundle at build/<channel>-linux-<arch>/ plus an
 # installer artifact at artifacts/. Code signing is a no-op on Linux. To
@@ -36,8 +35,8 @@ case "$ENV" in
     *)
         echo -e "${BOLD}Usage:${RESET} ./build.sh [dev|canary|prod]"
         echo -e "  ${GREEN}dev${RESET}     — unsigned dev build (default)"
-        echo -e "  ${YELLOW}canary${RESET}  — ad-hoc signed canary build"
-        echo -e "  ${RED}prod${RESET}    — ad-hoc signed production build"
+        echo -e "  ${YELLOW}canary${RESET}  — signed and notarized canary build"
+        echo -e "  ${RED}prod${RESET}    — signed and notarized stable build"
         exit 1
         ;;
 esac
@@ -51,31 +50,43 @@ if [ ! -d node_modules ]; then
 fi
 
 echo -e "${BLUE}→${RESET} Building frontend..."
-npx vite build
+bunx vite build
 
 # Map our env labels to Hutch's Electrobun environments.
 case "$ENV" in
     canary) CHANNEL="canary" ;;
-    prod)   CHANNEL="production" ;;
+    prod)   CHANNEL="stable" ;;
     *)      CHANNEL="dev" ;;
 esac
 
 echo -e "${BLUE}→${RESET} Building app bundle..."
-hutch electrobun build --env="$CHANNEL"
+bunx electrobun build --env="$CHANNEL"
 
-# Ad-hoc sign canary/prod on macOS only. The .app path is
-# build/<channel>-<platform>/...app (Electrobun adds the environment suffix to
-# non-production bundle names). Linux builds produce a flat bundle dir
-# at build/<channel>-linux-<arch>/ — nothing to codesign.
+# Hutch signs release builds. Submit its DMG through the existing notarytool
+# Keychain profile, then staple and verify both the app and installer.
 if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
-    APP=$(find build -maxdepth 2 -name "*.app" -path "*${CHANNEL}*" 2>/dev/null | head -1)
-    if [ -z "$APP" ]; then
-        echo -e "${RED}✗${RESET} Could not find .app bundle to sign"
+    if [ -z "${ELECTROBUN_DEVELOPER_ID:-}" ]; then
+        echo -e "${RED}✗${RESET} ELECTROBUN_DEVELOPER_ID is required"
         exit 1
     fi
-    echo -e "${BLUE}→${RESET} Ad-hoc signing ${BOLD}$APP${RESET}..."
-    codesign --force --deep --sign - "$APP"
-    codesign --verify --verbose=2 "$APP"
+    APP=$(find build -maxdepth 2 -name "*.app" -path "*${CHANNEL}*" 2>/dev/null | head -1)
+    if [ -z "$APP" ]; then
+        echo -e "${RED}✗${RESET} Could not find signed .app bundle"
+        exit 1
+    fi
+    DMG=$(find artifacts -maxdepth 1 -name "*.dmg" -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
+    if [ -z "$DMG" ]; then
+        echo -e "${RED}✗${RESET} Could not find signed DMG"
+        exit 1
+    fi
+    codesign --verify --deep --strict --verbose=2 "$APP"
+    xcrun notarytool submit "$DMG" --keychain-profile notarytool --wait
+    xcrun stapler staple "$APP"
+    xcrun stapler staple "$DMG"
+    xcrun stapler validate "$APP"
+    xcrun stapler validate "$DMG"
+    spctl --assess --type execute --verbose=2 "$APP"
+    spctl --assess --type install --verbose=2 "$DMG"
 fi
 
 echo ""
