@@ -82,10 +82,30 @@ hello-embedded/
 ./run.sh --clean        # rm -rf dist build node_modules/.vite
 ```
 
-Release builds use the installed Developer ID Application identity and submit
-the DMG with the `notarytool` Keychain profile. Set
-`ELECTROBUN_DEVELOPER_ID` to the full identity before running a canary or
-stable build. Dev builds remain unsigned.
+Release builds use Hutch's native signing and notarization pipeline so both
+the inner payload and outer self-extractor receive tickets before Hutch
+packages the DMG. Set `ELECTROBUN_DEVELOPER_ID` to the full installed identity
+and choose one complete notarization credential group:
+
+```bash
+# Apple ID plus an app-specific password
+export ELECTROBUN_APPLEID="your-apple-id@example.com"
+export ELECTROBUN_APPLEIDPASS="xxxx-xxxx-xxxx-xxxx"
+export ELECTROBUN_TEAMID="YOURTEAMID"
+
+# Or App Store Connect API credentials
+export ELECTROBUN_APPLEAPIKEYPATH="$HOME/private_keys/AuthKey_KEYID.p8"
+export ELECTROBUN_APPLEAPIKEY="KEYID"
+export ELECTROBUN_APPLEAPIISSUER="ISSUER-UUID"
+```
+
+Keep these values in the Keychain, a local ignored environment file, or a CI
+secret store. Dev builds remain unsigned. For a signed diagnostic build that
+does not contact Apple, set `ELECTROBUN_SKIP_NOTARIZATION=1`; never distribute
+that output as a release.
+
+TypeScript is pinned to 6.0.3 because Electrobun 2.0.1's generated devkit
+configuration still uses `baseUrl`, which TypeScript 7 removed.
 
 ### Raspberry Pi (linux-embedded)
 

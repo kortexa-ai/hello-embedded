@@ -28,7 +28,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
     "concurrently": "^10.0.5",
-    "electrobun": "2.0.1-beta.31",
+    "electrobun": "2.0.1",
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
     "typescript": "6.0.3",

@@ -5,9 +5,9 @@
 #   canary  — Developer ID-signed canary build (macOS) / unsigned (Linux)
 #   prod    — Developer ID-signed stable build (macOS) / unsigned (Linux)
 #
-# macOS release builds require ELECTROBUN_DEVELOPER_ID. Hutch signs and
-# packages the app; this script then notarizes and staples the DMG with the
-# machine's `notarytool` Keychain profile.
+# macOS release builds require ELECTROBUN_DEVELOPER_ID plus one complete set
+# of Hutch notarization credentials. Hutch signs, notarizes, staples, and
+# packages both the inner payload and outer self-extractor.
 #
 # Linux: produces a portable bundle at build/<channel>-linux-<arch>/ plus an
 # installer artifact at artifacts/. Code signing is a no-op on Linux. To
@@ -59,16 +59,44 @@ case "$ENV" in
     *)      CHANNEL="dev" ;;
 esac
 
-echo -e "${BLUE}→${RESET} Building app bundle..."
-bunx electrobun build --env="$CHANNEL"
-
-# Hutch signs release builds. Submit its DMG through the existing notarytool
-# Keychain profile, then staple and verify both the app and installer.
 if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
     if [ -z "${ELECTROBUN_DEVELOPER_ID:-}" ]; then
         echo -e "${RED}✗${RESET} ELECTROBUN_DEVELOPER_ID is required"
         exit 1
     fi
+
+    if [ "${ELECTROBUN_SKIP_NOTARIZATION:-0}" != "1" ]; then
+        API_CREDENTIALS=false
+        APPLE_ID_CREDENTIALS=false
+
+        if [ -n "${ELECTROBUN_APPLEAPIKEYPATH:-}" ] && \
+           [ -n "${ELECTROBUN_APPLEAPIKEY:-}" ] && \
+           [ -n "${ELECTROBUN_APPLEAPIISSUER:-}" ]; then
+            API_CREDENTIALS=true
+        fi
+
+        if [ -n "${ELECTROBUN_APPLEID:-}" ] && \
+           [ -n "${ELECTROBUN_APPLEIDPASS:-}" ] && \
+           [ -n "${ELECTROBUN_TEAMID:-}" ]; then
+            APPLE_ID_CREDENTIALS=true
+        fi
+
+        if [ "$API_CREDENTIALS" != "true" ] && \
+           [ "$APPLE_ID_CREDENTIALS" != "true" ]; then
+            echo -e "${RED}✗${RESET} Hutch notarization credentials are required"
+            echo "  Set the complete ELECTROBUN_APPLEAPI* or ELECTROBUN_APPLEID* group."
+            echo "  Use ELECTROBUN_SKIP_NOTARIZATION=1 only for diagnostic builds."
+            exit 1
+        fi
+    fi
+fi
+
+echo -e "${BLUE}→${RESET} Building app bundle..."
+bunx electrobun build --env="$CHANNEL"
+
+# Hutch performs release signing and notarization. Verify its output here
+# without changing the packaged artifacts.
+if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
     APP=$(find build -maxdepth 2 -name "*.app" -path "*${CHANNEL}*" 2>/dev/null | head -1)
     if [ -z "$APP" ]; then
         echo -e "${RED}✗${RESET} Could not find signed .app bundle"
@@ -80,13 +108,13 @@ if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
         exit 1
     fi
     codesign --verify --deep --strict --verbose=2 "$APP"
-    xcrun notarytool submit "$DMG" --keychain-profile notarytool --wait
-    xcrun stapler staple "$APP"
-    xcrun stapler staple "$DMG"
-    xcrun stapler validate "$APP"
-    xcrun stapler validate "$DMG"
-    spctl --assess --type execute --verbose=2 "$APP"
-    spctl --assess --type install --verbose=2 "$DMG"
+
+    if [ "${ELECTROBUN_SKIP_NOTARIZATION:-0}" != "1" ]; then
+        xcrun stapler validate "$APP"
+        xcrun stapler validate "$DMG"
+        spctl --assess --type execute --verbose=2 "$APP"
+        spctl --assess --type install --verbose=2 "$DMG"
+    fi
 fi
 
 echo ""

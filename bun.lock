@@ -20,7 +20,7 @@
         "@types/react-dom": "^19.2.4",
         "@vitejs/plugin-react": "^6.1.0",
         "concurrently": "^10.0.5",
-        "electrobun": "2.0.1-beta.31",
+        "electrobun": "2.0.1",
         "postcss": "^8.5.26",
         "tailwindcss": "^4.3.3",
         "typescript": "6.0.3",
@@ -273,7 +273,7 @@
 
     "detect-node-es": ["detect-node-es@1.1.0", "", {}, "sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ=="],
 
-    "electrobun": ["electrobun@2.0.1-beta.31", "", { "bin": { "electrobun": "bin/electrobun.cjs" } }, "sha512-8qT8wIHqOF6ogLdOEsnWPLT5HvCuuw66b9xzhUbG/SnUmi87+B+dmBc7hbFAYqkBH09rF2LdT4gyqCjVYIWXqQ=="],
+    "electrobun": ["electrobun@2.0.1", "", { "bin": { "electrobun": "bin/electrobun.cjs" } }, "sha512-1+OjJ0tMemjVrUEsh/AhmxnqUNpyCfJslCbcWOvkogFJuNVMmTlWMzyZem/Ts/7lg8f7ULWu8uuQBsKeGQsu7A=="],
 
     "embla-carousel": ["embla-carousel@8.6.0", "", {}, "sha512-SjWyZBHJPbqxHOzckOfo8lHisEaJWmwd23XppYFYVh10bU66/Pn5tkVkbkCMZVdbUE5eTCI2nD8OyIP4Z+uwkA=="],
 

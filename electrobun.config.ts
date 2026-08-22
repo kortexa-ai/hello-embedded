@@ -36,10 +36,9 @@ export default {
       bundleCEF: false,
       codesign: true,
       createDmg: true,
-      // The local notary credentials are stored as a notarytool Keychain
-      // profile, which Hutch does not consume. build.sh submits and staples
-      // the signed DMG after Hutch packages it.
-      notarize: false,
+      // Hutch notarizes and staples both the inner payload and outer
+      // self-extractor before packaging the DMG.
+      notarize: true,
     },
     linux: { bundleCEF: false },
     win: { bundleCEF: false },
