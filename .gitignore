@@ -4,4 +4,5 @@ dist/
 artifacts/
 .cottontail-tmp/
 .hutch/
+.env
 .DS_Store
