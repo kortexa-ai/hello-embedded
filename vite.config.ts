@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { electrobunViteAliases } from "./.hutch/devkit/api/config/electrobun-vite.ts";
 
 // Multi-page setup: index.html + page2.html share the same src/mainview/ root.
 // In dev, vite serves both at http://localhost:5174/{index,page2}.html.
@@ -8,6 +9,7 @@ import { resolve } from "path";
 // copies into views/mainview/ alongside the asar bundle.
 export default defineConfig({
   plugins: [react()],
+  resolve: { alias: electrobunViteAliases(resolve(import.meta.dirname, ".hutch/devkit")) },
   // Relative base — emit href="./assets/..." instead of "/assets/...", so the
   // built HTML works under views:// (custom scheme) as well as http://.
   base: "./",

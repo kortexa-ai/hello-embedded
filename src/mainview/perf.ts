@@ -47,8 +47,14 @@ function loop() {
 }
 requestAnimationFrame(loop);
 
+let previousSample = performance.now();
+let pingPending = false;
 setInterval(async () => {
-	const fps = frames;
+	if (pingPending) return;
+	pingPending = true;
+	const now = performance.now();
+	const fps = Math.round(frames * 1000 / (now - previousSample));
+	previousSample = now;
 	frames = 0;
 	let rpcRoundTripMs = -1;
 	try {
@@ -60,4 +66,5 @@ setInterval(async () => {
 	}
 	stats.textContent = `fps=${fps} rpcRoundTripMs=${rpcRoundTripMs} ticksSeen=${ticksSeen}`;
 	(electrobun.rpc as any).send["perf-stats"]({ fps, rpcRoundTripMs, ticksSeen });
+	pingPending = false;
 }, 1000);

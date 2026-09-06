@@ -9,7 +9,12 @@
 // No per-target code in this file. The platform backend is chosen by the
 // Electrobun CLI at build time via the target triple.
 
-import { ApplicationMenu, BrowserView, BrowserWindow, app } from "electrobun/main";
+import * as ApplicationMenu from "electrobun/main/app-menu";
+import { BrowserView } from "electrobun/main/browser-view";
+import { BrowserWindow } from "electrobun/main/browser-window";
+import { BuildConfig } from "electrobun/main/build-config";
+import events from "electrobun/main/events";
+import { resolveMainViewUrl } from "./startup";
 
 // Application menu: minimum macOS desktop expectations — App / Edit / Window.
 // First top-level item with no label is the AppKit "app menu" (named after
@@ -70,7 +75,7 @@ function showAbout() {
     sandbox: true,
   });
 }
-app.on("close", (data: unknown) => {
+events.on("close", ({ data }: { data: unknown }) => {
   if (aboutWin && (data as { id: number }).id === aboutWin.id) {
     aboutWin = null;
   }
@@ -83,15 +88,8 @@ ApplicationMenu.on("application-menu-clicked", (event: unknown) => {
 // HMR: prefer the local vite dev server when reachable, otherwise serve the
 // vite-built bundle from inside views://mainview/. The probe fails fast (and
 // silently) on linux-embedded kiosks with no network or no vite running.
-const VITE_DEV_URL = "http://localhost:5174";
 async function getMainViewUrl(): Promise<string> {
-  try {
-    await fetch(VITE_DEV_URL, { method: "HEAD" });
-    console.log(`[bun] HMR: using vite dev server at ${VITE_DEV_URL}`);
-    return `${VITE_DEV_URL}/index.html`;
-  } catch {
-    return "views://mainview/index.html";
-  }
+  return resolveMainViewUrl(BuildConfig.getSync().isPackaged, process.env.ELECTROBUN_HMR_URL);
 }
 
 // Perf probe mode: ELECTROBUN_START_PAGE=perf boots straight into
@@ -164,4 +162,13 @@ if (perfMode) {
 (win.webview as any).on("host-message", (e: unknown) => {
   const msg = (e as { data: { detail: { action?: string } } }).data.detail;
   if (msg?.action === "show-about") showAbout();
+  if (msg?.action === "show-external") {
+    new BrowserWindow({ title: "Web", url: "https://www.google.com",
+      sandbox: true,
+      // Newer devkits enforce this additional scheme policy; sandbox is the
+      // common isolation contract, including vanilla 2.0.1.
+      ...{ allowedProtocols: { views: false, appData: false } },
+      frame: { x: 60, y: 60, width: 900, height: 600 },
+    });
+  }
 });

@@ -49,15 +49,22 @@ if [ ! -d node_modules ]; then
     bun install
 fi
 
-echo -e "${BLUE}→${RESET} Building frontend..."
-bunx vite build
-
 # Map our env labels to Hutch's Electrobun environments.
 case "$ENV" in
     canary) CHANNEL="canary" ;;
     prod)   CHANNEL="stable" ;;
     *)      CHANNEL="dev" ;;
 esac
+
+case "${ELECTROBUN_DEVKIT:-vanilla}" in
+    vanilla) unset HUTCH_ELECTROBUN_DEVKIT_ROOT ;;
+    wpe) export HUTCH_ELECTROBUN_DEVKIT_ROOT="../electrobun/package/dist" ;;
+    *) echo "ELECTROBUN_DEVKIT must be vanilla or wpe" >&2; exit 1 ;;
+esac
+# Resolve renderer aliases and native artifacts from the same SDK selection.
+bunx electrobun prepare --env="$CHANNEL"
+echo -e "${BLUE}→${RESET} Building frontend..."
+bunx vite build
 
 if [ "$ENV" != "dev" ] && [ "$HOST_OS" = "Darwin" ]; then
     if [ -z "${ELECTROBUN_DEVELOPER_ID:-}" ]; then

@@ -1,12 +1,12 @@
 # hello-embedded
 
 Reference Electrobun app, written **once** to run as a real macOS desktop
-app and, after the Kortexa WPE branch is forward-ported to Electrobun 2, as a
+app and as a
 bare-DRM kiosk on a Raspberry Pi.
 
-The current `main` branch builds the Electrobun 2 macOS desktop app. The
-Raspberry Pi workflow below is retained for the pending WPE branch migration;
-upstream Electrobun 2 does not provide the `linux-embedded` target.
+The same source builds against the published Electrobun devkit and the local
+Kortexa `kortexa/linux-wpe` devkit. Upstream Electrobun does not supply the
+bare-DRM backend; choose the WPE devkit for the Pi kiosk.
 
 The desktop side uses Vite + React 19 + Tailwind v4 with HMR; the
 kiosk side runs the same React bundle on WPE WebKit directly on the
@@ -73,6 +73,21 @@ hello-embedded/
 
 ## Building and running
 
+### Compatibility matrix
+
+```sh
+bun install
+npm run typecheck
+npm test
+npm run build:vanilla  # published Electrobun 2.0.2-beta.14
+npm run build:wpe      # ../electrobun/package/dist, same app sources
+```
+
+Both builds prepare the selected devkit before bundling the renderer. The
+vanilla command clears inherited local overrides. Development-server probing
+has a 200 ms deadline and is disabled entirely for packaged builds. External
+pages open in a separate sandboxed window without privileged app RPC.
+
 ### macOS
 
 ```bash
@@ -104,13 +119,12 @@ secret store. Dev builds remain unsigned. For a signed diagnostic build that
 does not contact Apple, set `ELECTROBUN_SKIP_NOTARIZATION=1`; never distribute
 that output as a release.
 
-TypeScript is pinned to 6.0.3 because Electrobun 2.0.1's generated devkit
+TypeScript is pinned to 6.0.3 because the generated devkit
 configuration still uses `baseUrl`, which TypeScript 7 removed.
 
 ### Raspberry Pi (linux-embedded)
 
-This workflow is temporarily unavailable on `main` until
-`kortexa/linux-wpe` is forward-ported to Electrobun 2.
+Build the sibling `kortexa/linux-wpe` devkit first, then use `npm run build:wpe`.
 
 ```bash
 ./run.sh --canary       # build + extract installer + ./installer --no-kiosk + run
