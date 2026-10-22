@@ -88,6 +88,10 @@ vanilla command clears inherited local overrides. Development-server probing
 has a 200 ms deadline and is disabled entirely for packaged builds. External
 pages open in a separate sandboxed window without privileged app RPC.
 
+The WPE lane reads the Electrobun version from the selected local devkit's
+`native-devkit.json`. It can therefore validate current source builds before
+that version is published, while the vanilla lane keeps its published pin.
+
 ### macOS
 
 ```bash
